@@ -10,6 +10,13 @@ final class AppCoordinator {
 
     init(window: UIWindow) {
         self.window = window
+        
+        //potential solution for authoorisation token
+//        if let authToken = UserDefaults.standard.value(forKey: Constants.UserDefaults.authorisationToken) as? String {
+//            gitHubAPI = GitHubAPI(authorisationToken: authToken)
+//        } else {
+//            gitHubAPI = GitHubAPI(authorisationToken: nil)
+//        }
         gitHubAPI = GitHubAPI(authorisationToken: nil)
         mockLiveServer = MockLiveServer()
     }
