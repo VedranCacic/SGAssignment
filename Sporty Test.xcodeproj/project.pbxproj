@@ -104,13 +104,13 @@
 		D9AFA79A2DD2123E000A48BF = {
 			isa = PBXGroup;
 			children = (
-				D9AFA7A52DD2123F000A48BF /* Sporty Test */,
 				D9339EDF2DD4B917008DA189 /* GitHubAPI */,
 				D927F5352DD72764000DC30D /* MockLiveServer */,
-				D9AFA7BC2DD21240000A48BF /* Sporty TestTests */,
-				D9AFA7C62DD21240000A48BF /* Sporty TestUITests */,
 				D9339EE02DD4BAEB008DA189 /* Frameworks */,
 				D9AFA7A42DD2123F000A48BF /* Products */,
+				D9AFA7A52DD2123F000A48BF /* Sporty Test */,
+				D9AFA7BC2DD21240000A48BF /* Sporty TestTests */,
+				D9AFA7C62DD21240000A48BF /* Sporty TestUITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -226,6 +226,7 @@
 			knownRegions = (
 				en,
 				Base,
+				hr,
 			);
 			mainGroup = D9AFA79A2DD2123E000A48BF;
 			minimizedProjectReferenceProxies = 1;
@@ -414,6 +415,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -470,6 +472,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

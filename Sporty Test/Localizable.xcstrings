@@ -1,0 +1,34 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld" : {
+      "shouldTranslate" : false
+    },
+    "Authorisation Token" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autorizacijski token"
+          }
+        }
+      }
+    },
+    "No description" : {
+      "shouldTranslate" : false
+    },
+    "Save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spremi"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

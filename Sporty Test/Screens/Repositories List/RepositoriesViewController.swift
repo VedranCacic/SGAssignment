@@ -2,7 +2,7 @@ import Combine
 import GitHubAPI
 import MockLiveServer
 import SwiftUI
-import UIKit
+
 
 /// A view controller that displays a list of GitHub repositories for the "swiftlang" organization.
 final class RepositoriesViewController: UITableViewController {
@@ -26,8 +26,12 @@ final class RepositoriesViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "test"
+    
         tableView.register(RepositoryTableViewCell.self, forCellReuseIdentifier: "RepositoryCell")
+        
+        let image = UIImage(systemName: "gearshape.fill")?.withTintColor(.black, renderingMode: .alwaysOriginal)
+        let buttonItem = UIBarButtonItem.init(image: image, style:.plain, target:self, action: #selector(self.onSettings(sender:)))
+        self.navigationItem.rightBarButtonItem = buttonItem
 
         Task {
             await loadRepositories()
@@ -71,4 +75,22 @@ final class RepositoriesViewController: UITableViewController {
             print("Error loading repositories: \(error)")
         }
     }
+    
+    @objc func onSettings(sender: UIBarButtonItem) {
+        // Going to settings screen
+        let viewController = RepositoriesSettingsViewController()
+        viewController.delegate = self
+        show(viewController, sender: self)
+    }
+    
+    
+}
+
+
+extension RepositoriesViewController: RepositoriesSettingsViewControllerDelegate{
+    
+    func newTokenSaved() {
+        // should reload data with new authorisation token
+    }
+
 }
