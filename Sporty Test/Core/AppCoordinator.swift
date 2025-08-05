@@ -17,6 +17,11 @@ final class AppCoordinator {
 //        } else {
 //            gitHubAPI = GitHubAPI(authorisationToken: nil)
 //        }
+        
+        if UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) == nil{
+            UserDefaults.standard.setValue(Constants.Repository.baseRepository, forKey: Constants.UserDefaults.repositoryName)
+        }
+        
         gitHubAPI = GitHubAPI(authorisationToken: nil)
         mockLiveServer = MockLiveServer()
     }

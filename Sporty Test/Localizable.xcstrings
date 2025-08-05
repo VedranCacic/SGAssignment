@@ -15,8 +15,38 @@
         }
       }
     },
+    "Default" : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zadano"
+          }
+        }
+      }
+    },
     "No description" : {
       "shouldTranslate" : false
+    },
+    "Repository Name" : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ime Repozitorija"
+          }
+        }
+      }
+    },
+    "Repository name (cannot be empty)" : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ime Repozitorija (ne moze biti prazno)"
+          }
+        }
+      }
     },
     "Save" : {
       "extractionState" : "manual",

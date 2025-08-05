@@ -2,6 +2,7 @@ import UIKit
 
 protocol RepositoriesSettingsViewControllerDelegate {
     func newTokenSaved()
+    func newRepoChosen()
 }
 
 /// A view controller that displays the options for RepositoriesViewController
@@ -20,6 +21,7 @@ final class RepositoriesSettingsViewController: UIViewController {
     }()
     
     private let tokenLabel: UILabel = {
+        
         let label = UILabel()
         let baseFont = UIFont.preferredFont(forTextStyle: .body)
         let boldDescriptor = baseFont.fontDescriptor.withSymbolicTraits(.traitBold)
@@ -37,7 +39,7 @@ final class RepositoriesSettingsViewController: UIViewController {
         textView.textAlignment = NSTextAlignment.justified
         textView.textColor = UIColor.black
         textView.backgroundColor = .white
-        textView.font = UIFont.systemFont(ofSize: 20)
+        textView.font = UIFont.systemFont(ofSize: 16)
         textView.layer.cornerRadius = 5
         textView.autocapitalizationType = .none
         if let potentialString = UserDefaults.standard.value(forKey: Constants.UserDefaults.authorisationToken) as? String {
@@ -59,11 +61,63 @@ final class RepositoriesSettingsViewController: UIViewController {
         
         let button = UIButton(configuration: configuration)
         
-        if let potentialString = UserDefaults.standard.value(forKey: Constants.UserDefaults.authorisationToken) as? String {
-            button.isEnabled = true
-        } else {
-            button.isEnabled = false
+        return button
+    }()
+    
+    private let repositoryLabel: UILabel = {
+        
+        let label = UILabel()
+        let baseFont = UIFont.preferredFont(forTextStyle: .body)
+        let boldDescriptor = baseFont.fontDescriptor.withSymbolicTraits(.traitBold)
+        label.font = boldDescriptor.flatMap { UIFont(descriptor: $0, size: 0) } ?? baseFont
+        label.adjustsFontForContentSizeCategory = true
+        label.text =  String(localized: "Repository Name")
+        
+        return label
+    }()
+    
+    private let repositoryTextField: UITextField = {
+        
+        let textField =  UITextField(frame:.zero)
+        textField.placeholder = String(localized: "Repository name (cannot be empty)")
+        textField.font = UIFont.systemFont(ofSize: 16)
+        textField.borderStyle = UITextField.BorderStyle.roundedRect
+        textField.autocorrectionType = .no
+        textField.keyboardType = UIKeyboardType.default
+        textField.returnKeyType = UIReturnKeyType.done
+        textField.autocapitalizationType = .none
+        textField.contentVerticalAlignment = UIControl.ContentVerticalAlignment.center
+        if let repoName = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) as? String {
+            textField.text = repoName
         }
+        
+        return textField
+    }()
+    
+    private let saveRepositoryButton: UIButton = {
+        
+        var configuration = UIButton.Configuration.filled()
+        configuration.title = String(localized: "Save")
+        configuration.baseBackgroundColor = .systemBlue
+        configuration.baseForegroundColor = .white
+        configuration.cornerStyle = .medium
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+        
+        let button = UIButton(configuration: configuration)
+        
+        return button
+    }()
+    
+    private let defaultRepositoryButton: UIButton = {
+        
+        var configuration = UIButton.Configuration.filled()
+        configuration.title = String(localized: "Default")
+        configuration.baseBackgroundColor = .systemBlue
+        configuration.baseForegroundColor = .white
+        configuration.cornerStyle = .medium
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+        
+        let button = UIButton(configuration: configuration)
         
         return button
     }()
@@ -86,7 +140,9 @@ final class RepositoriesSettingsViewController: UIViewController {
         
         backButton.addTarget(self, action: #selector(backBtnPressed(sender:)), for: .touchUpInside)
         saveTokenButton.addTarget(self, action: #selector(saveAuthTokenPressed(sender:)), for: .touchUpInside)
-        tokenTextView.delegate = self
+        repositoryTextField.delegate = self
+        saveRepositoryButton.addTarget(self, action: #selector(saveRepoNamePressed(sender:)), for: .touchUpInside)
+        defaultRepositoryButton.addTarget(self, action: #selector(defaultRepoNamePressed(sender:)), for: .touchUpInside)
         
         //add views and constraints
         setViews()
@@ -102,10 +158,18 @@ final class RepositoriesSettingsViewController: UIViewController {
         self.view.addSubview(tokenLabel)
         self.view.addSubview(tokenTextView)
         self.view.addSubview(saveTokenButton)
+        self.view.addSubview(repositoryLabel)
+        self.view.addSubview(repositoryTextField)
+        self.view.addSubview(saveRepositoryButton)
+        self.view.addSubview(defaultRepositoryButton)
         
         tokenLabel.translatesAutoresizingMaskIntoConstraints = false
         tokenTextView.translatesAutoresizingMaskIntoConstraints = false
         saveTokenButton.translatesAutoresizingMaskIntoConstraints = false
+        repositoryLabel.translatesAutoresizingMaskIntoConstraints = false
+        repositoryTextField.translatesAutoresizingMaskIntoConstraints = false
+        saveRepositoryButton.translatesAutoresizingMaskIntoConstraints = false
+        defaultRepositoryButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             tokenLabel
@@ -132,6 +196,38 @@ final class RepositoriesSettingsViewController: UIViewController {
             saveTokenButton
                 .topAnchor
                 .constraint(equalToSystemSpacingBelow: tokenTextView.bottomAnchor, multiplier: 1),
+            
+            repositoryLabel
+                .leadingAnchor
+                .constraint(equalTo: self.view.layoutMarginsGuide.leadingAnchor),
+            repositoryLabel
+                .topAnchor
+                .constraint(equalToSystemSpacingBelow: saveTokenButton.bottomAnchor, multiplier: 1),
+            
+            repositoryTextField
+                .leadingAnchor
+                .constraint(equalTo: self.view.layoutMarginsGuide.leadingAnchor),
+            repositoryTextField
+                .trailingAnchor
+                .constraint(equalTo: self.view.layoutMarginsGuide.trailingAnchor),
+            repositoryTextField
+                .topAnchor
+                .constraint(equalToSystemSpacingBelow: repositoryLabel.bottomAnchor, multiplier: 1),
+            repositoryTextField.heightAnchor.constraint(equalToConstant: 30),
+            
+            saveRepositoryButton
+                .trailingAnchor
+                .constraint(equalTo: self.view.layoutMarginsGuide.trailingAnchor),
+            saveRepositoryButton
+                .topAnchor
+                .constraint(equalToSystemSpacingBelow: repositoryTextField.bottomAnchor, multiplier: 1),
+            
+            defaultRepositoryButton
+                .trailingAnchor
+                .constraint(equalTo: saveRepositoryButton.leadingAnchor, constant: -10),
+            defaultRepositoryButton
+                .topAnchor
+                .constraint(equalToSystemSpacingBelow: repositoryTextField.bottomAnchor, multiplier: 1)
         ])
         
     }
@@ -150,22 +246,34 @@ final class RepositoriesSettingsViewController: UIViewController {
         }
         
     }
-}
-
-extension RepositoriesSettingsViewController:UITextViewDelegate{
     
-    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool{
+    @objc func saveRepoNamePressed(sender: UIBarButtonItem) {
         
-        guard let textFieldText = textView.text,
-              let rangeOfTextToReplace = Range(range, in: textFieldText) else {
-            return true
+        UserDefaults.standard.setValue(repositoryTextField.text, forKey: Constants.UserDefaults.repositoryName)
+        
+        //tell parent new repository is chosen
+        if let delegate = self.delegate {
+            delegate.newRepoChosen()
         }
         
-        let currentText = textFieldText.replacingCharacters(in: rangeOfTextToReplace, with: text)
-        print("word typed: " + currentText)
-        saveTokenButton.isEnabled = !currentText.isEmpty
-        
-        return true
     }
     
+    @objc func defaultRepoNamePressed(sender: UIBarButtonItem) {
+        
+        repositoryTextField.text = Constants.Repository.baseRepository
+        
+    }
+}
+
+extension RepositoriesSettingsViewController:UITextFieldDelegate{
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool{
+        
+        let currentText = textField.text ?? ""
+        let updatedText = (currentText as NSString).replacingCharacters(in: range, with: string)
+        
+        saveRepositoryButton.isEnabled = !updatedText.isEmpty
+       
+        return true
+    }
+
 }
