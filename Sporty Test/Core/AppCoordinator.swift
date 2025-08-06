@@ -7,6 +7,7 @@ final class AppCoordinator {
     private let window: UIWindow
     private let gitHubAPI: GitHubAPI
     private let mockLiveServer: MockLiveServer
+    var deepLinkManager:DeepLinkManager? = nil
 
     init(window: UIWindow) {
         self.window = window
@@ -27,12 +28,16 @@ final class AppCoordinator {
     }
 
     func start() {
+        
+        let baseViewController:RepositoriesViewController = RepositoriesViewController(
+            gitHubAPI: gitHubAPI,
+            mockLiveServer: mockLiveServer
+        )
         window.rootViewController = UINavigationController(
-            rootViewController: RepositoriesViewController(
-                gitHubAPI: gitHubAPI,
-                mockLiveServer: mockLiveServer
-            )
+            rootViewController:baseViewController
         )
         window.makeKeyAndVisible()
+        
+        self.deepLinkManager = DeepLinkManager(rootViewController: baseViewController)
     }
 }

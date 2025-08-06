@@ -59,13 +59,7 @@ final class RepositoriesViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // if data set is empty, for what ever reason, show message to user
-        if repositories.count == 0 {
-            self.tableView.setEmptyMessage(String(localized: "Something went wrong.") + "\n" + String(localized: "We are not able to get data for this user repositories at this moment."))
-        } else {
-            self.tableView.restore()
-        }
-
+        
         return repositories.count
     }
     
@@ -100,10 +94,17 @@ final class RepositoriesViewController: UITableViewController {
                 pullControl.endRefreshing()
                 
             }
+            // if data set is empty, for what ever reason, show message to user
+            if repositories.count == 0 {
+                self.tableView.setEmptyMessage(String(localized: "Something went wrong.") + "\n" + String(localized: "We are not able to get data for this user repositories at this moment."))
+            } else {
+                self.tableView.restore()
+            }
             tableView.reloadData()
         } catch {
             print("Error loading repositories: \(error)")
             repositories = []
+            self.tableView.setEmptyMessage(String(localized: "Something went wrong.") + "\n" + String(localized: "We are not able to get data for this user repositories at this moment."))
             tableView.reloadData()
             if refreshControlActive{
                 refreshControlActive = false
@@ -127,7 +128,12 @@ final class RepositoriesViewController: UITableViewController {
         }
     }
     
-    
+    //handling of deep/universal links
+    func receivedDeepLink(_ deepLink: String) {
+        // this is just a showcase, specific link should open specific page but for now
+        
+        self.tableView(tableView, didSelectRowAt: IndexPath(row: 0, section: 0))
+    }
 }
 
 
