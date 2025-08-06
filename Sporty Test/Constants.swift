@@ -8,6 +8,10 @@ struct Constants {
     struct Repository {
         static let baseRepository = "swiftlang"
     }
+    
+    struct TableViewCellIdentifiers {
+        static let repositoriesTableView = "repositoriesTableView"
+    }
    
 }
 

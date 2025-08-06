@@ -10,6 +10,7 @@ final class RepositoriesViewController: UITableViewController {
     private let mockLiveServer: MockLiveServer
     private var repositories: [GitHubMinimalRepository] = []
     
+    //pull to refresh control
     private let pullControl:UIRefreshControl = {
         
         let control = UIRefreshControl()
@@ -37,12 +38,13 @@ final class RepositoriesViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.register(RepositoryTableViewCell.self, forCellReuseIdentifier: "RepositoryCell")
+        tableView.register(RepositoryTableViewCell.self, forCellReuseIdentifier: Constants.TableViewCellIdentifiers.repositoriesTableView)
         
         pullControl.addTarget(self, action: #selector(pullToRefresh(sender:)), for: .valueChanged)
         
         tableView.addSubview(pullControl)
         
+        //navigation control that goes to networking and data options
         let image = UIImage(systemName: "gearshape.fill")?.withTintColor(.black, renderingMode: .alwaysOriginal)
         let buttonItem = UIBarButtonItem.init(image: image, style:.plain, target:self, action: #selector(self.onSettings(sender:)))
         self.navigationItem.rightBarButtonItem = buttonItem
@@ -57,12 +59,19 @@ final class RepositoriesViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        repositories.count
+        // if data set is empty, for what ever reason, show message to user
+        if repositories.count == 0 {
+            self.tableView.setEmptyMessage(String(localized: "Something went wrong.") + "\n" + String(localized: "We are not able to get data for this user repositories at this moment."))
+        } else {
+            self.tableView.restore()
+        }
+
+        return repositories.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let repository = repositories[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: "RepositoryCell", for: indexPath) as! RepositoryTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: Constants.TableViewCellIdentifiers.repositoriesTableView, for: indexPath) as! RepositoryTableViewCell
         
         cell.name = repository.name
         cell.descriptionText = repository.description
@@ -85,6 +94,7 @@ final class RepositoriesViewController: UITableViewController {
             let api = GitHubAPI()
             let repo = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) as? String
             repositories = try await api.repositoriesForOrganisation(repo!)
+            //end pull to refresh animation
             if refreshControlActive{
                 refreshControlActive = false
                 pullControl.endRefreshing()

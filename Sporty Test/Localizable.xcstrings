@@ -68,6 +68,26 @@
           }
         }
       }
+    },
+    "Something went wrong." : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nesto je poslo krivo"
+          }
+        }
+      }
+    },
+    "We are not able to get data for this user repositories at this moment." : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nismo u mogucnosti dobiti podatke za zadani repozitorij"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

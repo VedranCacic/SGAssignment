@@ -237,7 +237,7 @@ final class RepositoriesSettingsViewController: UIViewController {
     }
     
     @objc func saveAuthTokenPressed(sender: UIBarButtonItem) {
-        
+        //saving authorization token
         UserDefaults.standard.setValue(tokenTextView.text, forKey: Constants.UserDefaults.authorisationToken)
         
         //tell parent new token is saved
@@ -248,7 +248,7 @@ final class RepositoriesSettingsViewController: UIViewController {
     }
     
     @objc func saveRepoNamePressed(sender: UIBarButtonItem) {
-        
+        // saving organisation or user name
         UserDefaults.standard.setValue(repositoryTextField.text, forKey: Constants.UserDefaults.repositoryName)
         
         //tell parent new repository is chosen
@@ -267,7 +267,7 @@ final class RepositoriesSettingsViewController: UIViewController {
 
 extension RepositoriesSettingsViewController:UITextFieldDelegate{
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool{
-        
+        // delegate checks if user wants to save empty string and disables button if that is the case
         let currentText = textField.text ?? ""
         let updatedText = (currentText as NSString).replacingCharacters(in: range, with: string)
         
