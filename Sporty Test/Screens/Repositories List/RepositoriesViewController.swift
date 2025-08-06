@@ -10,6 +10,16 @@ final class RepositoriesViewController: UITableViewController {
     private let mockLiveServer: MockLiveServer
     private var repositories: [GitHubMinimalRepository] = []
     
+    private let pullControl:UIRefreshControl = {
+        
+        let control = UIRefreshControl()
+        control.attributedTitle = NSAttributedString(string: String(localized: "Pull to refresh"))
+        
+        return control
+    }()
+    
+    private var refreshControlActive = false
+    
     init(gitHubAPI: GitHubAPI, mockLiveServer: MockLiveServer) {
         self.gitHubAPI = gitHubAPI
         self.mockLiveServer = mockLiveServer
@@ -28,6 +38,10 @@ final class RepositoriesViewController: UITableViewController {
         super.viewDidLoad()
         
         tableView.register(RepositoryTableViewCell.self, forCellReuseIdentifier: "RepositoryCell")
+        
+        pullControl.addTarget(self, action: #selector(pullToRefresh(sender:)), for: .valueChanged)
+        
+        tableView.addSubview(pullControl)
         
         let image = UIImage(systemName: "gearshape.fill")?.withTintColor(.black, renderingMode: .alwaysOriginal)
         let buttonItem = UIBarButtonItem.init(image: image, style:.plain, target:self, action: #selector(self.onSettings(sender:)))
@@ -71,9 +85,20 @@ final class RepositoriesViewController: UITableViewController {
             let api = GitHubAPI()
             let repo = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) as? String
             repositories = try await api.repositoriesForOrganisation(repo!)
+            if refreshControlActive{
+                refreshControlActive = false
+                pullControl.endRefreshing()
+                
+            }
             tableView.reloadData()
         } catch {
             print("Error loading repositories: \(error)")
+            repositories = []
+            tableView.reloadData()
+            if refreshControlActive{
+                refreshControlActive = false
+                pullControl.endRefreshing()
+            }
         }
     }
     
@@ -82,6 +107,14 @@ final class RepositoriesViewController: UITableViewController {
         let viewController = RepositoriesSettingsViewController()
         viewController.delegate = self
         show(viewController, sender: self)
+    }
+    
+    @objc func pullToRefresh(sender: UIRefreshControl) {
+        // pull to refresh functionality
+        refreshControlActive = true
+        Task {
+            await loadRepositories()
+        }
     }
     
     

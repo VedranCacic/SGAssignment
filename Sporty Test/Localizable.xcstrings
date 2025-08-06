@@ -28,6 +28,16 @@
     "No description" : {
       "shouldTranslate" : false
     },
+    "Pull to refresh" : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Osvjezi"
+          }
+        }
+      }
+    },
     "Repository Name" : {
       "localizations" : {
         "hr" : {
