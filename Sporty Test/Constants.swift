@@ -2,6 +2,7 @@ struct Constants {
     
     struct UserDefaults {
         static let authorisationToken = "authorisationToken"
+        static let repositoryType = "repositoryType"
         static let repositoryName = "repositoryName"
     }
     

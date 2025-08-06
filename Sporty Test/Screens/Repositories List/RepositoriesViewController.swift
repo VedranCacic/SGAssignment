@@ -21,6 +21,8 @@ final class RepositoriesViewController: UITableViewController {
     
     private var refreshControlActive = false
     
+    private var repositoryType:RepositoryType? = nil
+    
     init(gitHubAPI: GitHubAPI, mockLiveServer: MockLiveServer) {
         self.gitHubAPI = gitHubAPI
         self.mockLiveServer = mockLiveServer
@@ -28,6 +30,11 @@ final class RepositoriesViewController: UITableViewController {
         super.init(style: .insetGrouped)
         
         title = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) as? String
+        
+        if let stringValue = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryType) as? String{
+            self.repositoryType = RepositoryType(rawValue: stringValue)
+        }
+        
     }
     
     @available(*, unavailable)
@@ -87,7 +94,7 @@ final class RepositoriesViewController: UITableViewController {
         do {
             let api = GitHubAPI()
             let repo = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) as? String
-            repositories = try await api.repositoriesForOrganisation(repo!)
+            repositories = try await api.repositoriesForOrganisation(repo!, type: repositoryType!)
             //end pull to refresh animation
             if refreshControlActive{
                 refreshControlActive = false
@@ -134,6 +141,7 @@ final class RepositoriesViewController: UITableViewController {
         
         self.tableView(tableView, didSelectRowAt: IndexPath(row: 0, section: 0))
     }
+    
 }
 
 
@@ -151,6 +159,11 @@ extension RepositoriesViewController: RepositoriesSettingsViewControllerDelegate
         Task {
             await loadRepositories()
         }
+    }
+    
+    
+    func newRepoTypeChosen(type: RepositoryType) {
+        repositoryType = type
     }
     
 }

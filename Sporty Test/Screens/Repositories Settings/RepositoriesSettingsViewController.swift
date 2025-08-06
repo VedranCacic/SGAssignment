@@ -1,7 +1,9 @@
 import UIKit
+import GitHubAPI
 
 protocol RepositoriesSettingsViewControllerDelegate {
     func newTokenSaved()
+    func newRepoTypeChosen(type:RepositoryType)
     func newRepoChosen()
 }
 
@@ -9,6 +11,8 @@ protocol RepositoriesSettingsViewControllerDelegate {
 final class RepositoriesSettingsViewController: UIViewController {
     
     var delegate: RepositoriesSettingsViewControllerDelegate? = nil
+    
+    private var repositoryType:RepositoryType? = nil
     
     private let backButton: UIButton = {
         
@@ -62,6 +66,27 @@ final class RepositoriesSettingsViewController: UIViewController {
         let button = UIButton(configuration: configuration)
         
         return button
+    }()
+    
+    private let repositoryTypeLabel: UILabel = {
+        
+        let label = UILabel()
+        let baseFont = UIFont.preferredFont(forTextStyle: .body)
+        let boldDescriptor = baseFont.fontDescriptor.withSymbolicTraits(.traitBold)
+        label.font = boldDescriptor.flatMap { UIFont(descriptor: $0, size: 0) } ?? baseFont
+        label.adjustsFontForContentSizeCategory = true
+        label.text =  String(localized: "Repository Type")
+        
+        return label
+    }()
+    
+    private let repositoryTypeControl: UISegmentedControl = {
+        
+        let segmentedControl = UISegmentedControl(items: [String(localized: "Organization"), String(localized: "User")])
+        segmentedControl.backgroundColor = .systemGray4
+        
+        return segmentedControl
+        
     }()
     
     private let repositoryLabel: UILabel = {
@@ -125,7 +150,11 @@ final class RepositoriesSettingsViewController: UIViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?){
         
         super.init(nibName: nil, bundle: nil)
-        title = "Options"
+        title = String(localized: "Options")
+        
+        if let stringValue = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryType) as? String{
+            self.repositoryType = RepositoryType(rawValue: stringValue)
+        }
     }
     
     @available(*, unavailable)
@@ -143,6 +172,8 @@ final class RepositoriesSettingsViewController: UIViewController {
         repositoryTextField.delegate = self
         saveRepositoryButton.addTarget(self, action: #selector(saveRepoNamePressed(sender:)), for: .touchUpInside)
         defaultRepositoryButton.addTarget(self, action: #selector(defaultRepoNamePressed(sender:)), for: .touchUpInside)
+        repositoryTypeControl.addTarget(self, action: #selector(self.repoTypeChanged(sender:)), for: .valueChanged)
+        repositoryTypeControl.selectedSegmentIndex = repositoryType?.rawValue == RepositoryType.organization.rawValue ? 0 : 1
         
         //add views and constraints
         setViews()
@@ -158,6 +189,8 @@ final class RepositoriesSettingsViewController: UIViewController {
         self.view.addSubview(tokenLabel)
         self.view.addSubview(tokenTextView)
         self.view.addSubview(saveTokenButton)
+        self.view.addSubview(repositoryTypeLabel)
+        self.view.addSubview(repositoryTypeControl)
         self.view.addSubview(repositoryLabel)
         self.view.addSubview(repositoryTextField)
         self.view.addSubview(saveRepositoryButton)
@@ -166,6 +199,8 @@ final class RepositoriesSettingsViewController: UIViewController {
         tokenLabel.translatesAutoresizingMaskIntoConstraints = false
         tokenTextView.translatesAutoresizingMaskIntoConstraints = false
         saveTokenButton.translatesAutoresizingMaskIntoConstraints = false
+        repositoryTypeLabel.translatesAutoresizingMaskIntoConstraints = false
+        repositoryTypeControl.translatesAutoresizingMaskIntoConstraints = false
         repositoryLabel.translatesAutoresizingMaskIntoConstraints = false
         repositoryTextField.translatesAutoresizingMaskIntoConstraints = false
         saveRepositoryButton.translatesAutoresizingMaskIntoConstraints = false
@@ -197,12 +232,26 @@ final class RepositoriesSettingsViewController: UIViewController {
                 .topAnchor
                 .constraint(equalToSystemSpacingBelow: tokenTextView.bottomAnchor, multiplier: 1),
             
+            repositoryTypeLabel
+                .leadingAnchor
+                .constraint(equalTo: self.view.layoutMarginsGuide.leadingAnchor),
+            repositoryTypeLabel
+                .topAnchor
+                .constraint(equalToSystemSpacingBelow: saveTokenButton.bottomAnchor, multiplier: 1),
+            
+            repositoryTypeControl
+                .centerXAnchor
+                .constraint(equalTo: self.view.centerXAnchor),
+            repositoryTypeControl
+                .topAnchor
+                .constraint(equalToSystemSpacingBelow: repositoryTypeLabel.bottomAnchor, multiplier: 1),
+            
             repositoryLabel
                 .leadingAnchor
                 .constraint(equalTo: self.view.layoutMarginsGuide.leadingAnchor),
             repositoryLabel
                 .topAnchor
-                .constraint(equalToSystemSpacingBelow: saveTokenButton.bottomAnchor, multiplier: 1),
+                .constraint(equalToSystemSpacingBelow: repositoryTypeControl.bottomAnchor, multiplier: 1),
             
             repositoryTextField
                 .leadingAnchor
@@ -247,8 +296,20 @@ final class RepositoriesSettingsViewController: UIViewController {
         
     }
     
+    @objc func repoTypeChanged(sender:UISegmentedControl){
+        
+        let selectedType = sender.selectedSegmentIndex == 0 ? RepositoryType.organization : RepositoryType.user
+        // saving repository type
+        UserDefaults.standard.setValue(selectedType.rawValue, forKey: Constants.UserDefaults.repositoryType)
+        
+        //tell parent new repository type is chosen
+        if let delegate = self.delegate {
+            delegate.newRepoTypeChosen(type: selectedType)
+        }
+        
+    }
     @objc func saveRepoNamePressed(sender: UIBarButtonItem) {
-        // saving organisation or user name
+        // saving organization or user name
         UserDefaults.standard.setValue(repositoryTextField.text, forKey: Constants.UserDefaults.repositoryName)
         
         //tell parent new repository is chosen

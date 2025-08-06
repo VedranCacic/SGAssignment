@@ -23,6 +23,10 @@ final class AppCoordinator {
             UserDefaults.standard.setValue(Constants.Repository.baseRepository, forKey: Constants.UserDefaults.repositoryName)
         }
         
+        if UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryType) == nil{
+            UserDefaults.standard.setValue(RepositoryType.organization.rawValue, forKey: Constants.UserDefaults.repositoryType)
+        }
+        
         gitHubAPI = GitHubAPI(authorisationToken: nil)
         mockLiveServer = MockLiveServer()
     }

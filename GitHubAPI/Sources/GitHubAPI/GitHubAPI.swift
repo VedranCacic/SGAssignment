@@ -4,6 +4,11 @@ import Foundation
 ///
 /// You may choose to add new functions here if you would like to access new endpoints. Don't worry
 /// about improving this type (e.g. removing duplication); just add what you need.
+///
+public enum RepositoryType: String {
+    case organization = "orgs"
+    case user = "users"
+}
 public struct GitHubAPI: Sendable {
     private let baseURL: URL
     private let authorisationToken: String?
@@ -29,8 +34,9 @@ public struct GitHubAPI: Sendable {
     /// - parameter organisation: The name of the organisation to retrieve repositories for.
     /// - returns: An array of `GitHubMinimalRepository` objects representing the repositories for
     ///   the provided organisation.
-    public func repositoriesForOrganisation(_ organisation: String) async throws -> [GitHubMinimalRepository] {
-        let url = baseURL.appendingPathComponent("orgs/\(organisation)/repos")
+    public func repositoriesForOrganisation(_ organisation: String, type:RepositoryType) async throws -> [GitHubMinimalRepository] {
+        let orgType = type.rawValue == RepositoryType.organization.rawValue ? RepositoryType.organization.rawValue : RepositoryType.user.rawValue
+        let url = baseURL.appendingPathComponent("\(orgType)/\(organisation)/repos")
         var request = URLRequest(url: url)
         request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
         request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")

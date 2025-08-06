@@ -28,6 +28,26 @@
     "No description" : {
       "shouldTranslate" : false
     },
+    "Options" : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Postavke"
+          }
+        }
+      }
+    },
+    "Organization" : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Organizacija"
+          }
+        }
+      }
+    },
     "Pull to refresh" : {
       "localizations" : {
         "hr" : {
@@ -58,6 +78,16 @@
         }
       }
     },
+    "Repository Type" : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tip Repozitorija"
+          }
+        }
+      }
+    },
     "Save" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -75,6 +105,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nesto je poslo krivo"
+          }
+        }
+      }
+    },
+    "User" : {
+      "localizations" : {
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Korisnik"
           }
         }
       }
