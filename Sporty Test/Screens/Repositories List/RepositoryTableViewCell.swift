@@ -153,12 +153,19 @@ final class RepositoryTableViewCell: UITableViewCell {
         let dynamicWidth = (nameLabel.intrinsicContentSize.width + starImageView.frame.width + starCountLabel.intrinsicContentSize.width + starLeadingConstant)
         
         //applying constraints according to situation
-        
-        sameRowTopConstraint?.isActive = layoutWidth >= dynamicWidth
-        sameRowLeadingConstraint?.isActive = layoutWidth >= dynamicWidth
-        nextRowTopConstraint?.isActive = layoutWidth < dynamicWidth
-        nextRowLeadingConstraint?.isActive = layoutWidth < dynamicWidth
-        nextRowTrailingConstraint?.isActive = layoutWidth < dynamicWidth
+        if (layoutWidth < dynamicWidth){
+            sameRowTopConstraint?.isActive = false
+            sameRowLeadingConstraint?.isActive = false
+            nextRowTopConstraint?.isActive = true
+            nextRowLeadingConstraint?.isActive = true
+            nextRowTrailingConstraint?.isActive = true
+        } else {
+            nextRowTopConstraint?.isActive = false
+            nextRowLeadingConstraint?.isActive = false
+            nextRowTrailingConstraint?.isActive = false
+            sameRowTopConstraint?.isActive = true
+            sameRowLeadingConstraint?.isActive = true
+        }
         
     }
 }
