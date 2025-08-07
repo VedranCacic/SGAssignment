@@ -2,9 +2,9 @@ import UIKit
 import GitHubAPI
 
 protocol RepositoriesSettingsViewControllerDelegate {
-    func newTokenSaved()
+    func newTokenSaved(token:String)
     func newRepoTypeChosen(type:RepositoryType)
-    func newRepoChosen()
+    func newRepoChosen(name:String)
 }
 
 /// A view controller that displays the options for RepositoriesViewController
@@ -286,12 +286,10 @@ final class RepositoriesSettingsViewController: UIViewController {
     }
     
     @objc func saveAuthTokenPressed(sender: UIBarButtonItem) {
-        //saving authorization token
-        UserDefaults.standard.setValue(tokenTextView.text, forKey: Constants.UserDefaults.authorisationToken)
         
         //tell parent new token is saved
         if let delegate = self.delegate {
-            delegate.newTokenSaved()
+            delegate.newTokenSaved(token: tokenTextView.text)
         }
         
     }
@@ -299,8 +297,6 @@ final class RepositoriesSettingsViewController: UIViewController {
     @objc func repoTypeChanged(sender:UISegmentedControl){
         
         let selectedType = sender.selectedSegmentIndex == 0 ? RepositoryType.organization : RepositoryType.user
-        // saving repository type
-        UserDefaults.standard.setValue(selectedType.rawValue, forKey: Constants.UserDefaults.repositoryType)
         
         //tell parent new repository type is chosen
         if let delegate = self.delegate {
@@ -309,12 +305,9 @@ final class RepositoriesSettingsViewController: UIViewController {
         
     }
     @objc func saveRepoNamePressed(sender: UIBarButtonItem) {
-        // saving organization or user name
-        UserDefaults.standard.setValue(repositoryTextField.text, forKey: Constants.UserDefaults.repositoryName)
-        
         //tell parent new repository is chosen
         if let delegate = self.delegate {
-            delegate.newRepoChosen()
+            delegate.newRepoChosen(name: repositoryTextField.text!)
         }
         
     }

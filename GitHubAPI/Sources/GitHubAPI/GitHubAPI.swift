@@ -50,6 +50,21 @@ public struct GitHubAPI: Sendable {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return try decoder.decode([GitHubMinimalRepository].self, from: data)
     }
+    
+    public func repositoriesForOrganisation(_ organisation: String, type:RepositoryType, authToken:String) async throws -> [GitHubMinimalRepository] {
+        let orgType = type.rawValue == RepositoryType.organization.rawValue ? RepositoryType.organization.rawValue : RepositoryType.user.rawValue
+        let url = baseURL.appendingPathComponent("\(orgType)/\(organisation)/repos")
+        var request = URLRequest(url: url)
+        request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
+        request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
+
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+
+        let (data, _) = try await urlSession.data(for: request)
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try decoder.decode([GitHubMinimalRepository].self, from: data)
+    }
 
     /// Retrieves a specific repository by its full name. The full name should be a value returned
     /// by the GitHub API and is in the form `<owner>/<repository>`.

@@ -21,20 +21,18 @@ final class RepositoriesViewController: UITableViewController {
     
     private var refreshControlActive = false
     
-    private var repositoryType:RepositoryType? = nil
+    private let viewModel:RepositoriesViewModel
+    
     
     init(gitHubAPI: GitHubAPI, mockLiveServer: MockLiveServer) {
         self.gitHubAPI = gitHubAPI
         self.mockLiveServer = mockLiveServer
-        
+        self.viewModel = RepositoriesViewModel(gitHubAPI: gitHubAPI, mockLiveServer: mockLiveServer)
         super.init(style: .insetGrouped)
         
         title = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) as? String
         
-        if let stringValue = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryType) as? String{
-            self.repositoryType = RepositoryType(rawValue: stringValue)
-        }
-        
+        viewModel.callApi()
     }
     
     @available(*, unavailable)
@@ -44,6 +42,24 @@ final class RepositoriesViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        viewModel.repositories.bind { [weak self] repositories in
+            self?.repositories = repositories
+            DispatchQueue.main.async {
+                if ((self?.refreshControlActive) != nil){
+                    self?.refreshControlActive = false
+                    self?.pullControl.endRefreshing()
+    
+                }
+                // if data set is empty, for what ever reason, show message to user
+                if repositories.count == 0 {
+                    self?.tableView.setEmptyMessage(String(localized: "Something went wrong.") + "\n" + String(localized: "We are not able to get data for this user repositories at this moment."))
+                } else {
+                    self?.tableView.restore()
+                }
+                self?.tableView.reloadData()
+               }
+        }
         
         tableView.register(RepositoryTableViewCell.self, forCellReuseIdentifier: Constants.TableViewCellIdentifiers.repositoriesTableView)
         
@@ -56,9 +72,6 @@ final class RepositoriesViewController: UITableViewController {
         let buttonItem = UIBarButtonItem.init(image: image, style:.plain, target:self, action: #selector(self.onSettings(sender:)))
         self.navigationItem.rightBarButtonItem = buttonItem
         
-        Task {
-            await loadRepositories()
-        }
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -90,36 +103,6 @@ final class RepositoriesViewController: UITableViewController {
         show(viewController, sender: self)
     }
     
-    private func loadRepositories() async {
-        do {
-            let api = GitHubAPI()
-            let repo = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) as? String
-            repositories = try await api.repositoriesForOrganisation(repo!, type: repositoryType!)
-            //end pull to refresh animation
-            if refreshControlActive{
-                refreshControlActive = false
-                pullControl.endRefreshing()
-                
-            }
-            // if data set is empty, for what ever reason, show message to user
-            if repositories.count == 0 {
-                self.tableView.setEmptyMessage(String(localized: "Something went wrong.") + "\n" + String(localized: "We are not able to get data for this user repositories at this moment."))
-            } else {
-                self.tableView.restore()
-            }
-            tableView.reloadData()
-        } catch {
-            print("Error loading repositories: \(error)")
-            repositories = []
-            self.tableView.setEmptyMessage(String(localized: "Something went wrong.") + "\n" + String(localized: "We are not able to get data for this user repositories at this moment."))
-            tableView.reloadData()
-            if refreshControlActive{
-                refreshControlActive = false
-                pullControl.endRefreshing()
-            }
-        }
-    }
-    
     @objc func onSettings(sender: UIBarButtonItem) {
         // Going to settings screen
         let viewController = RepositoriesSettingsViewController()
@@ -130,9 +113,7 @@ final class RepositoriesViewController: UITableViewController {
     @objc func pullToRefresh(sender: UIRefreshControl) {
         // pull to refresh functionality
         refreshControlActive = true
-        Task {
-            await loadRepositories()
-        }
+        viewModel.callApi()
     }
     
     //handling of deep/universal links
@@ -147,23 +128,18 @@ final class RepositoriesViewController: UITableViewController {
 
 extension RepositoriesViewController: RepositoriesSettingsViewControllerDelegate{
     
-    func newTokenSaved() {
-        // should reload data with new authorisation token
+    func newTokenSaved(token:String) {
+        viewModel.authorizatonToken = token
     }
     
-    func newRepoChosen() {
-        // should fetch data for new repository
-        let repo = UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) as? String
-        title = repo
+    func newRepoChosen(name:String) {
+        title = name
+        viewModel.repositoryName = name
         
-        Task {
-            await loadRepositories()
-        }
     }
-    
     
     func newRepoTypeChosen(type: RepositoryType) {
-        repositoryType = type
+        viewModel.repositoryType = type
     }
     
 }

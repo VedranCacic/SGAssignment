@@ -12,13 +12,6 @@ final class AppCoordinator {
     init(window: UIWindow) {
         self.window = window
         
-        //potential solution for authoorisation token
-//        if let authToken = UserDefaults.standard.value(forKey: Constants.UserDefaults.authorisationToken) as? String {
-//            gitHubAPI = GitHubAPI(authorisationToken: authToken)
-//        } else {
-//            gitHubAPI = GitHubAPI(authorisationToken: nil)
-//        }
-        
         if UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryName) == nil{
             UserDefaults.standard.setValue(Constants.Repository.baseRepository, forKey: Constants.UserDefaults.repositoryName)
         }
@@ -26,6 +19,13 @@ final class AppCoordinator {
         if UserDefaults.standard.value(forKey: Constants.UserDefaults.repositoryType) == nil{
             UserDefaults.standard.setValue(RepositoryType.organization.rawValue, forKey: Constants.UserDefaults.repositoryType)
         }
+        
+        //potential solution for authoorisation token
+//        if let authToken = UserDefaults.standard.value(forKey: Constants.UserDefaults.authorisationToken) as? String {
+//            gitHubAPI = GitHubAPI(authorisationToken: authToken)
+//        } else {
+//            gitHubAPI = GitHubAPI(authorisationToken: nil)
+//        }
         
         gitHubAPI = GitHubAPI(authorisationToken: nil)
         mockLiveServer = MockLiveServer()

@@ -166,6 +166,6 @@ final class RepositoryTableViewCell: UITableViewCell {
             sameRowTopConstraint?.isActive = true
             sameRowLeadingConstraint?.isActive = true
         }
-        
+            
     }
 }
